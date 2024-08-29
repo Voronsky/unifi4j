@@ -3,7 +3,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
@@ -26,12 +25,15 @@ public class Unifi {
         ).build();
     }
 
-    @Profile("!DataRetrieval")
-    public ResponseEntity<String> getHosts() {
+    /**
+     * Returns the raw JSON response from the hosts endpoint
+     * @return JSON string
+     */
+    public String getHosts() {
         try{
             log.info("Obtaining hosts from console..");
             log.info(this.endpoint);
-            return this.restClient.get().uri("/hosts").retrieve().toEntity(String.class);
+            return this.restClient.get().uri("/hosts").retrieve().body(String.class);
         }
         catch (Exception e){
             log.error(e.toString());
@@ -39,19 +41,28 @@ public class Unifi {
         return null;
     }
 
-    public List<String> getHardware() throws Exception{
+    /**
+     * Returns a list of only the hardware names associated with the account
+     * @return A list of hardware names
+     * @throws Exception
+     */
+    public List<String> getHardwareList() throws Exception{
         List<String> hardwares = new ArrayList<>();
-        ResponseEntity<String> p = this.restClient.get().uri("/hosts").retrieve().toEntity(String.class);
-        //Data p = this.restClient.get().uri("/hosts").retrieve().body(Data.class);
-        log.info("Response Obj: "+p);
+        ResponseEntity<String> json = this.restClient.get().uri("/hosts").retrieve().toEntity(String.class);
+        log.debug("JSON response: "+json);
 
         // Map the JSON String from the response to a Json node object
-        JsonNode jsonObject = new ObjectMapper().readTree(p.getBody());
-        log.info("JSON Tree object: "+jsonObject);
-        log.info("Reported State: " + jsonObject.get("data").get(0).get("reportedState").get("hardware"));
-        ObjectMapper objMapper = new ObjectMapper();
-        Hardware h = objMapper.treeToValue(jsonObject.get("data").get(0).get("reportedState").asText(), Hardware.class);
-        hardwares.add(h.name());
+        JsonNode jsonObject = new ObjectMapper().readTree(json.getBody());
+        ObjectMapper mapper = new ObjectMapper();
+        UnifiResponse ur = mapper.readValue(jsonObject.toString(), UnifiResponse.class);
+        List<Data> data = ur.data();
+        log.info("List: "+ur);
+        log.info("REEE: "+data);
+        for(Data itr: data){
+            log.info("RS: "+itr.reportedState().hardware());
+            hardwares.add(itr.reportedState().hardware().name());
+        }
+
         return hardwares;
     }
 
