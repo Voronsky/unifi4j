@@ -18,6 +18,7 @@ public class UnifiTests {
         Unifi unifi = new Unifi("https://api.ui.com/ea", System.getenv("UNIFI_KEY"));
         response = unifi.getHosts();
         System.out.println(response);
+        assert !response.isEmpty();
 
     }
 
@@ -34,5 +35,6 @@ public class UnifiTests {
             assert false;
         }
         System.out.println(response);
+        assert !response.isEmpty();
     }
 }
