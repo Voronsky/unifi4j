@@ -1,6 +1,6 @@
 package com.voronsky.unifi4j;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record Data(String hardwareId, String id, String ipAddress, ReportedState reportedState) {}
+public record Data(String hardwareId, String id, String ipAddress, ReportedState reportedState, List<Devices> devices) {}
