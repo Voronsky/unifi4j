@@ -37,4 +37,17 @@ public class UnifiTests {
         System.out.println(response);
         assert !response.isEmpty();
     }
+
+    @Test
+    public void GetDevicesTest(){
+        List<Devices> devices = new ArrayList<>();
+        Unifi unifi = new Unifi("https://api.ui.com/ea", System.getenv("UNIFI_KEY"));
+        try {
+            devices = unifi.getDevices();
+        }catch (Exception e){
+            System.out.println("Exception: "+e);
+            assert false;
+        }
+        assert !devices.isEmpty();
+    }
 }
