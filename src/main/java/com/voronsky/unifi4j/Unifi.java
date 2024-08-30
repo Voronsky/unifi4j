@@ -57,13 +57,31 @@ public class Unifi {
         UnifiResponse ur = mapper.readValue(jsonObject.toString(), UnifiResponse.class);
         List<Data> data = ur.data();
         log.info("List: "+ur);
-        log.info("REEE: "+data);
         for(Data itr: data){
             log.info("RS: "+itr.reportedState().hardware());
             hardwares.add(itr.reportedState().hardware().name());
         }
 
         return hardwares;
+    }
+
+    public List<Devices> getDevices() throws Exception{
+        List<Devices> devices = new ArrayList<>();
+        ResponseEntity<String> json = this.restClient.get().uri("/devices").retrieve().toEntity(String.class);
+        log.debug("JSON response: "+ json);
+
+        //Convert to Json Node Object to do POJO
+        JsonNode jsonObject = new ObjectMapper().readTree(json.getBody());
+        ObjectMapper mapper = new ObjectMapper();
+        UnifiResponse ur = mapper.readValue(jsonObject.toString(), UnifiResponse.class);
+        List<Data> data = ur.data();
+        log.info("List: "+ur);
+        // Polynomial O(N^2) , it was a list within a list in the JSON response
+        for (Data dataItr: data){
+            devices.addAll(dataItr.devices());
+        }
+        log.debug("Devices: "+devices);
+        return devices;
     }
 
 }
