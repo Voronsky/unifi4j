@@ -44,7 +44,7 @@ public class Unifi {
     /**
      * Returns a list of only the hardware names associated with the account
      * @return A list of hardware names
-     * @throws Exception
+     * @throws Exception For failed API Calls or JSON parsing
      */
     public List<String> getHardwareList() throws Exception{
         List<String> hardwares = new ArrayList<>();
@@ -65,6 +65,11 @@ public class Unifi {
         return hardwares;
     }
 
+    /**
+     * Returns a list of Devices and their information
+     * @return A list of device objects containing device information
+     * @throws Exception For failed API calls or JSON parsing
+     */
     public List<Devices> getDevices() throws Exception{
         List<Devices> devices = new ArrayList<>();
         ResponseEntity<String> json = this.restClient.get().uri("/devices").retrieve().toEntity(String.class);
